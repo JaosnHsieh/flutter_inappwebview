@@ -87,7 +87,29 @@ public class InAppBrowserWebViewController: UIViewController, InAppBrowserDelega
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        webView.translatesAutoresizingMaskIntoConstraints = false
+        //2022.09.22 camera permission fix added by jh
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .authorized: // The user has previously granted access to the camera.
+                print("granted")
+            
+            case .notDetermined: // The user has not yet been asked for camera access.
+                AVCaptureDevice.requestAccess(for: .video) { granted in
+                    if granted {
+                        print("granted 2")
+                    }
+                }
+            
+            case .denied: // The user has previously denied access.
+                return
+
+            case .restricted: // The user can't grant access due to restrictions.
+                return
+            
+        @unknown default:
+            return;
+        }
+
+        webView?.translatesAutoresizingMaskIntoConstraints = false
         progressBar.translatesAutoresizingMaskIntoConstraints = false
         
         if #available(iOS 9.0, *) {
